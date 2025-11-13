@@ -2,14 +2,36 @@ let connections = [];
 let peer;
 let isAdmin = false;
 
+// --- Update status indicator ---
+function updateStatus(id, action) {
+  const status = document.getElementById('status' + id);
+  if (!status) return;
+  status.textContent = action === 'play' ? '▶️' : '⏸️';
+}
+
 // --- Initialize PeerJS ---
 function initPeer(adminMode = false) {
   if (adminMode) {
     // Admin has fixed ID
-    peer = new Peer('admin', { host:'peerjs.com', port:443, secure:true });
+    peer = new Peer('admin', {
+      host: 'peerjs-server.herokuapp.com',
+      port: 443,
+      secure: true
+    });
+
+    peer.on('connection', conn => {
+      connections.push(conn);
+      conn.on('data', handleData);
+    });
+
   } else {
-    peer = new Peer({ host:'peerjs.com', port:443, secure:true });
-    // Connect to admin
+    // Normal device
+    peer = new Peer({
+      host: 'peerjs-server.herokuapp.com',
+      port: 443,
+      secure: true
+    });
+
     peer.on('open', id => {
       const conn = peer.connect('admin');
       conn.on('open', () => console.log('Connected to admin'));
@@ -17,20 +39,17 @@ function initPeer(adminMode = false) {
       connections.push(conn);
     });
   }
-
-  // Accept incoming connections (for admin)
-  peer.on('connection', conn => {
-    connections.push(conn);
-    conn.on('data', handleData);
-  });
 }
 
-// --- Handle incoming toggle commands ---
+// --- Handle incoming toggle events ---
 function handleData(data) {
   const audio = document.getElementById('audio' + data.station);
   if (!audio) return;
+
   if (data.action === 'play') audio.play();
   else audio.pause();
+
+  updateStatus(data.station, data.action);
 }
 
 // --- Toggle station ---
@@ -45,11 +64,13 @@ function toggleStation(id) {
   if (audio.paused) audio.play();
   else audio.pause();
 
+  updateStatus(id, action);
+
   // Broadcast to all connected peers
-  connections.forEach(conn => conn.send({type:'toggle', station:id, action: action}));
+  connections.forEach(conn => conn.send({type:'toggle', station:id, action:action}));
 }
 
-// --- Start peer for admin if logged in ---
+// --- Start admin peer ---
 function startAdminPeer() {
   isAdmin = true;
   initPeer(true);
