@@ -1,21 +1,23 @@
-// --- Setup PeerJS (Photon-style P2P) ---
-let peer = new Peer(); // random ID
+// --- Declare connections first ---
 let connections = [];
+
+// --- Setup PeerJS ---
+let peer = new Peer(); // random ID
 
 peer.on('open', id => {
   console.log('Connected with ID:', id);
 });
 
-// Connect to other peers manually if you want static IDs or share the link
+// Handle incoming peer connections
 peer.on('connection', conn => {
   connections.push(conn);
   conn.on('data', handleData);
 });
 
-// Handle incoming updates
+// Handle incoming toggle events
 function handleData(data) {
   if (data.type === 'toggle') {
-    const audio = document.getElementById('audio'+data.station);
+    const audio = document.getElementById('audio' + data.station);
     if (audio.paused) audio.play();
     else audio.pause();
   }
@@ -23,7 +25,7 @@ function handleData(data) {
 
 // --- Station toggling ---
 function toggleStation(id) {
-  const audio = document.getElementById('audio'+id);
+  const audio = document.getElementById('audio' + id);
   if (audio.paused) audio.play();
   else audio.pause();
 
