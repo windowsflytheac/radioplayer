@@ -44,9 +44,11 @@ function updateStatus(id, action) {
 
 // --- Initialize PeerJS ---
 function initPeer(adminMode = false) {
+  isAdmin = adminMode;
+
   if (adminMode) {
     peer = new Peer('admin', {
-      host: 'peerjs-server.herokuapp.com',
+      host: '0.peerjs.com',
       port: 443,
       secure: true
     });
@@ -58,7 +60,7 @@ function initPeer(adminMode = false) {
 
   } else {
     peer = new Peer({
-      host: 'peerjs-server.herokuapp.com',
+      host: '0.peerjs.com',
       port: 443,
       secure: true
     });
@@ -70,6 +72,10 @@ function initPeer(adminMode = false) {
       connections.push(conn);
     });
   }
+
+  peer.on('error', err => {
+    console.error('PeerJS error:', err);
+  });
 }
 
 // --- Handle incoming toggle events ---
@@ -98,7 +104,7 @@ function toggleStation(id) {
   updateStatus(id, action);
 
   // Broadcast to all connected peers
-  connections.forEach(conn => conn.send({type:'toggle', station:id, action:action}));
+  connections.forEach(conn => conn.send({ type:'toggle', station:id, action:action }));
 }
 
 // --- Play all stations ---
@@ -111,7 +117,7 @@ function playAllStations() {
     audio.play();
     updateStatus(id, 'play');
 
-    connections.forEach(conn => conn.send({type:'toggle', station:id, action:'play'}));
+    connections.forEach(conn => conn.send({ type:'toggle', station:id, action:'play' }));
   });
 }
 
@@ -125,7 +131,7 @@ function stopAllStations() {
     audio.pause();
     updateStatus(id, 'pause');
 
-    connections.forEach(conn => conn.send({type:'toggle', station:id, action:'pause'}));
+    connections.forEach(conn => conn.send({ type:'toggle', station:id, action:'pause' }));
   });
 }
 
