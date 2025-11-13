@@ -11,20 +11,21 @@
 
 <div id="stations">
   <div class="station" data-id="1">
-    <h2>Station 1</h2>
-    <audio id="audio1" src="audio/station1.mp3" controls></audio>
+    <h2>Portal Track 1</h2>
+    <audio id="audio1" src="audio/PortalTrack1.mp3" controls></audio>
     <button onclick="toggleStation(1)">Toggle</button>
   </div>
   <div class="station" data-id="2">
-    <h2>Station 2</h2>
-    <audio id="audio2" src="audio/station2.mp3" controls></audio>
+    <h2>Portal Track 2</h2>
+    <audio id="audio2" src="audio/PortalTrack2.mp3" controls></audio>
     <button onclick="toggleStation(2)">Toggle</button>
   </div>
 </div>
 
 <button onclick="login()">Admin Login</button>
 
-<script src="peerjs.min.js"></script>
+<!-- Load PeerJS from CDN BEFORE your radio.js -->
+<script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 <script src="radio.js"></script>
 <script src="admin.js"></script>
 </body>
